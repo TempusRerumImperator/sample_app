@@ -26,6 +26,9 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
     end
     follow_redirect!
     assert_template 'users/show'
-    #assert_not flash.present?
+    assert_not flash.empty?
+    # Workaround due to test_helper not including properly, investigate later
+    assert !session[:user_id].nil?
+    #assert is_logged_in?
   end
 end
