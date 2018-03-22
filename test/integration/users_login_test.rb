@@ -45,9 +45,34 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
     delete logout_path
     assert_not !session[:user_id].nil? # is_logged_in? test_helpers unavailable
     assert_redirected_to root_url
+    # Simulate clicking logout in second window
+    delete logout_path
     follow_redirect!
     assert_select "a[href=?]", login_path
     assert_select "a[href=?]", logout_path, count: 0
     assert_select "a[href=?]", user_path(@user), count: 0
+  end
+
+  test "login with remembering" do
+    log_in_as(@user, remember_me: '1')
+    assert_not_empty cookies['remember_token']
+  end
+
+  test "login without remembering" do
+    # Log in to set the cookie.
+    log_in_as(@user, remember_me: '1')
+    # Log in again and verify that the cookie is deleted.
+    log_in_as(@user, remember_me: '0')
+    assert_empty cookies['remember_token']
+  end
+
+  # defined a test helper here because test helpers are not available
+  # due to changes to integration tests with rails 5
+  
+  # Log in as a particular user.
+  def log_in_as(user, password: 'password', remember_me: '1')
+    post login_path, params: { session: { email: user.email,
+                                          password: password,
+                                          remember_me: remember_me } }
   end
 end
