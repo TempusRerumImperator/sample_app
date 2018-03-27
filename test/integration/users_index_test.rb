@@ -31,6 +31,13 @@ class UsersIndexTest < ActionDispatch::IntegrationTest
     log_in_as(@non_admin)
     get users_path
     assert_select 'a', text: 'delete', count: 0
+    @user = User.new( name:  "a",
+              email: "user@example.com",
+              password: "password",
+              password_confirmation: "password" )
+    @user.save
+    get users_path
+    assert_select 'a[href=?]', user_path(@user), text: @user.name, count: 0
   end
 
   # defined a test helper here because test helpers are not available
